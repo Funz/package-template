@@ -1,0 +1,136 @@
+<project name="package" default="pack" basedir=".">
+
+    <path id="antcontrib.classpath">
+        <pathelement location="lib/ant-contrib-0.6.jar" />
+    </path>
+    <taskdef name="for" taskname="for" classname="net.sf.antcontrib.logic.For" classpathref="antcontrib.classpath" />
+    <taskdef name="if" taskname="if" classname="net.sf.antcontrib.logic.IfTask" classpathref="antcontrib.classpath" />
+    <taskdef name="propertycopy" taskname="propertycopy" classname="net.sf.antcontrib.property.PropertyCopy" classpathref="antcontrib.classpath" />
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="antcontrib.classpath" />
+
+    <property file="pack.properties"/>
+    <fail message="Setup the pack configuration file pack.properties">
+        <condition>
+            <not>
+                <and>
+                    <available file="pack.properties" type="file" />
+                </and>
+            </not>
+        </condition>
+    </fail>
+
+    <property name="install.dir" value="${basedir}/Funz-${pack.name}"/>
+	
+
+    <!-- clean: remove all generated files -->
+    <target name="clean" description="clean up">
+        <delete dir="${install.dir}"  failonerror="false"/>
+    </target>
+
+
+    <!-- get empty Funz (given version) -->
+    <import file="proxy_conf.xml"/> <!-- fill with your conf if needed -->
+    <property name="funz-calculator.install.src" value="https://github.com/Funz/funz-calculator/releases/download/${funz.release}"/>
+    <property name="funz-client.install.src" value="https://github.com/Funz/funz-client/releases/download/${funz.release}"/>
+    <target name="get-funz" depends="proxy">
+        <if>
+            <available file="funz-calculator.zip" type="file" />
+            <then></then>
+            <else>
+                <get src="${funz-calculator.install.src}/funz-calculator.zip" dest="funz-calculator.zip"/>
+            </else>
+        </if>
+        <unzip src="funz-calculator.zip" dest="${install.dir}" overwrite="true"/>
+        
+        <if>
+            <available file="funz-client.zip" type="file" />
+            <then></then>
+            <else>
+                <get src="${funz-client.install.src}/funz-client.zip" dest="funz-client.zip"/>
+            </else>
+        </if>
+        <unzip src="funz-client.zip" dest="${install.dir}" overwrite="true"/>
+    </target>
+
+
+    <target name="get-plugins" depends="proxy">
+        <for list="${plugins.list}" param="plugin" delimiter=",">
+            <sequential>
+
+                <property name="${@{plugin}.nameversion}" value="@{plugin}"/>
+
+                <script language="javascript">
+                    arr = project.getProperty('${@{plugin}.nameversion}').split(':');
+                    project.setProperty('@{plugin}.name', arr[0]);
+                    project.setProperty('@{plugin}.version', arr[1]);
+                </script>
+
+                <echo message="* Plugin ${@{plugin}.name}, Version ${@{plugin}.version}"/>
+        
+                <if>
+                    <available file="plugin-${@{plugin}.name}.zip" type="file" />
+                    <then></then>
+                    <else>
+                        <get src="https://github.com/Funz/plugin-${@{plugin}.name}/releases/download/${funz.release}_${@{plugin}.version}/plugin-${@{plugin}.name}.zip" dest="plugin-${@{plugin}.name}.zip"/>
+                    </else>
+                </if>
+                <unzip src="plugin-${@{plugin}.name}.zip" dest="${install.dir}" overwrite="true"/>
+        
+                <!-- append code command in calculator.xml -->
+                <if>
+                    <available file="${install.dir}/plugins/calc/${@{plugin}.name}.cplugin.jar" />
+                    <then>
+                        <replace file="${install.dir}/calculator.xml" token="/CALCULATOR" value="CODE name='${@{plugin}.name}' cplugin='file:plugins/calc/${@{plugin}.name}.cplugin.jar' command='./scripts/${@{plugin}.name}.sh' /&gt;&#10;&#10;&lt;/CALCULATOR" />
+                    </then>
+                    <else>
+                        <replace file="${install.dir}/calculator.xml" token="/CALCULATOR" value="CODE name='${@{plugin}.name}' command='${command}' /&gt;&#10;&#10;&lt;/CALCULATOR" />
+                    </else>
+                </if>
+            </sequential>
+        </for>
+    </target>
+
+    <target name="get-algorithms" depends="proxy">
+        <for list="${algorithms.list}" param="algorithm" delimiter=",">
+            <sequential>
+
+                <property name="${@{algorithm}.nameversion}" value="@{algorithm}"/>
+
+                <script language="javascript">
+                    arr = project.getProperty('${@{algorithm}.nameversion}').split(':');
+                    project.setProperty('@{algorithm}.name', arr[0]);
+                    project.setProperty('@{algorithm}.version', arr[1]);
+                </script>
+
+                <echo message="* Algorithm ${@{algorithm}.name}, Version ${@{algorithm}.version}"/>
+        
+                <if>
+                    <available file="algorithm-${@{algorithm}.name}.zip" type="file" />
+                    <then></then>
+                    <else>
+                        <get src="https://github.com/Funz/algorithm-${@{algorithm}.name}/releases/download/${funz.release}_${@{algorithm}.version}/algorithm-${@{algorithm}.name}.zip" dest="algorithm-${@{algorithm}.name}.zip"/>
+                    </else>
+                </if>
+                <unzip src="algorithm-${@{algorithm}.name}.zip" dest="${install.dir}" overwrite="true"/>
+            </sequential>
+        </for>
+    </target>
+
+    <target name="install" depends="get-funz, get-plugins, get-algorithms">
+        <copy todir="${install.dir}" failonerror="false">
+            <fileset dir="${resources.dir}">
+                <include name="*" />
+            </fileset>
+        </copy>
+
+        <chmod dir="${install.dir}" perm="ugo+rx" includes="**/*.sh"/>
+        <chmod dir="${install.dir}" perm="ugo+rx" includes="**/*.bat"/>
+    </target>
+
+    <target name="pack" depends="install">
+        <zip file="Funz-${pack.name}.zip">
+            <fileset dir="${install.dir}"/>
+        </zip>
+    </target>
+
+</project>
