@@ -1,7 +1,7 @@
 <project name="proxy_conf">
 
     <target name="proxy">
-        <echo message="Using proxy from funz-profile/proxy_conf.xml"/>
+        <echo message="Using proxy from proxy_conf.xml"/>
         <!-- setproxy socksproxyhost="localhost" socksproxyport="9999" /-->
         <!-- setproxy proxyhost="http://something" proxyport="3128" proxyuser="me" proxypassword="XXXXX" /-->
     </target>
