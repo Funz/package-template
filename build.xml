@@ -71,7 +71,7 @@
                     <available file="plugin-${@{plugin}.name}.zip" type="file" />
                     <then></then>
                     <else>
-                        <get src="https://github.com/Funz/plugin-${@{plugin}.name}/releases/download/${funz.release}_${@{plugin}.version}/plugin-${@{plugin}.name}.zip" dest="plugin-${@{plugin}.name}.zip"/>
+                        <get src="https://github.com/Funz/plugin-${@{plugin}.name}/releases/download/${funz.release}-${@{plugin}.version}/plugin-${@{plugin}.name}.zip" dest="plugin-${@{plugin}.name}.zip"/>
                     </else>
                 </if>
                 <unzip src="plugin-${@{plugin}.name}.zip" dest="${install.dir}" overwrite="true"/>
@@ -83,7 +83,7 @@
                         <replace file="${install.dir}/calculator.xml" token="/CALCULATOR" value="CODE name='${@{plugin}.name}' cplugin='file:plugins/calc/${@{plugin}.name}.cplugin.jar' command='./scripts/${@{plugin}.name}.sh' /&gt;&#10;&#10;&lt;/CALCULATOR" />
                     </then>
                     <else>
-                        <replace file="${install.dir}/calculator.xml" token="/CALCULATOR" value="CODE name='${@{plugin}.name}' command='${command}' /&gt;&#10;&#10;&lt;/CALCULATOR" />
+                        <replace file="${install.dir}/calculator.xml" token="/CALCULATOR" value="CODE name='${@{plugin}.name}' command='./scripts/${@{plugin}.name}.sh' /&gt;&#10;&#10;&lt;/CALCULATOR" />
                     </else>
                 </if>
             </sequential>
@@ -108,7 +108,7 @@
                     <available file="algorithm-${@{algorithm}.name}.zip" type="file" />
                     <then></then>
                     <else>
-                        <get src="https://github.com/Funz/algorithm-${@{algorithm}.name}/releases/download/${funz.release}_${@{algorithm}.version}/algorithm-${@{algorithm}.name}.zip" dest="algorithm-${@{algorithm}.name}.zip"/>
+                        <get src="https://github.com/Funz/algorithm-${@{algorithm}.name}/releases/download/${funz.release}-${@{algorithm}.version}/algorithm-${@{algorithm}.name}.zip" dest="algorithm-${@{algorithm}.name}.zip"/>
                     </else>
                 </if>
                 <unzip src="algorithm-${@{algorithm}.name}.zip" dest="${install.dir}" overwrite="true"/>
