@@ -50,6 +50,9 @@
             </else>
         </if>
         <unzip src="funz-client.zip" dest="${install.dir}" overwrite="true"/>
+	    
+        <chmod dir="${install.dir}" perm="ugo+rx" includes="**/*.sh"/>
+        <chmod dir="${install.dir}" perm="ugo+rx" includes="**/*.bat"/>
     </target>
 
 
