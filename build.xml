@@ -120,9 +120,10 @@
     </target>
 
     <target name="install" depends="get-funz, get-plugins, get-algorithms">
-        <copy todir="${install.dir}" failonerror="false">
+        <copy todir="${install.dir}" failonerror="false" overwrite="true">
             <fileset dir="${resources.dir}">
                 <include name="*" />
+		<exclude name="README.md"/>
             </fileset>
         </copy>
 
